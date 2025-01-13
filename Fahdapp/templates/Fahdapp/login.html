@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Fahdapp/style2.css' %}">
+    
+    
+</head>
+<body>
+    <div class="main-container">
+        <h2>Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            <label for="id_username">Username</label>
+            {{login_form.username}}
+            <label for="id_password">Password</label>
+            {{login_form.password}}
+         
+        <button type="submit">Log in</button>
+        </form>
+        <a href="{% url 'Signup'%}">Don't have an account? Sign up</a>
+    </div>
+</body>
+</html>

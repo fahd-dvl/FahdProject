@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Fahdapp/style1.css' %}">
+    
+</head>
+<body>
+    <div class="main-container">
+        <h1>Welcome to Hotel Booking</h1>
+        <p>Book rooms easily at our partner hotels.</p>
+        <a href="{% url 'Login' %}" class="start-button">Log in</a>
+        <a href="{%url 'Signup'%}" class="start-button" style="margin-left: 15px;">Sign up</a>
+    </div>
+</body>
+</html>

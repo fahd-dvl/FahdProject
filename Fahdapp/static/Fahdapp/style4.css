@@ -1,0 +1,48 @@
+a {
+    text-decoration: none;
+    color: white;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: #fff;
+    flex-wrap: wrap;
+}
+
+
+.hotel-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.hotel-card {
+    text-align: center;
+    max-width: 400px;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+.hotel-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+.hotel-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 10px;
+}
+.hotel-card p {
+    font-size: 1rem;
+    font-weight: 400;
+    margin-top: 5px;
+}

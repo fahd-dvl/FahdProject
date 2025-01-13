@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Fahdapp/style5.css' %}">
+    <script>
+        function updateRoomNumbers() {
+            var roomType = document.querySelector('input[name="room_type"]:checked').value;
+            var checkin_date = document.getElementById("checkin_date").value;
+            var checkout_date = document.getElementById("checkout_date").value;
+            var roomSelect = document.getElementById("room_number");
+            var roomNumbersDiv = document.getElementById("room_numbers");
+            roomSelect.innerHTML = ""; // Reset options
+            roomNumbersDiv.innerHTML = ""; // Clear previous room numbers
+            
+            var rooms = {{ hotel.rooms | safe }}; // Contexte avec les chambres
+            var filteredRooms = rooms.filter(room => room.description === roomType);
+            var availableRooms = [];
+            
+            filteredRooms.forEach(room => {
+                var reservations = room.reservations;
+                var isAvailable = true;
+                
+                for (let index in reservations) {
+                    if (!(checkin_date > reservations[index].check_out || checkout_date < reservations[index].check_in)) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+
+                if (isAvailable) {
+                    availableRooms.push(room);
+                }
+            });
+
+            // Create options for room selection
+            availableRooms.forEach(function(room) {
+                var option = document.createElement("option");
+                option.value = room.room_number;
+                option.textContent = room.room_number;
+                roomSelect.appendChild(option);
+            });
+
+            // Display available room numbers under the checkbox group
+            if (availableRooms.length > 0) {
+                var roomList = "<strong>Available Room Numbers:</strong><br>";
+                availableRooms.forEach(function(room) {
+                    roomList += room.room_number + "<br>";
+                });
+                roomNumbersDiv.innerHTML = roomList;
+            } else {
+                roomNumbersDiv.innerHTML = "<strong>No rooms available for the selected type and dates.</strong>";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="main-container">
+        <h2>Hotel Reservation</h2>
+        <form method="post">
+            {% csrf_token %}
+            <label for="hotel_name">Hotel Name</label>
+            <input type="text" id="hotel_name" name="hotel_name" value="{{ hotel.nom }}" readonly>
+
+            <label for="checkin_date">Check-in Date</label>
+            <input type="date" id="checkin_date" name="checkin_date" required>
+
+            <label for="checkout_date">Check-out Date</label>
+            <input type="date" id="checkout_date" name="checkout_date" required>
+
+            <label>Choose Room Type</label>
+            <div class="checkbox-group">
+                <label>
+                    <input type="radio" name="room_type" value="single" onclick="updateRoomNumbers()" required> Single
+                </label>
+                <label>
+                    <input type="radio" name="room_type" value="double" onclick="updateRoomNumbers()" required> Double
+                </label>
+                <label>
+                    <input type="radio" name="room_type" value="suite" onclick="updateRoomNumbers()" required> Suite
+                </label>
+            </div>
+
+            <div class="room-selection">
+                <label for="room_number">Select Room Number</label>
+                <select id="room_number" name="room_number" required>
+                    <option value="">Please select a room</option>
+                </select>
+            </div>
+
+            <div id="room_numbers" class="room-numbers"></div>
+
+            <button type="submit">Submit Reservation</button>
+        </form>
+    </div>
+</body>
+</html>
