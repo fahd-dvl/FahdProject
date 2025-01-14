@@ -15,13 +15,19 @@ class Room(models.Model):
     price_per_night = models.FloatField()
     description= models.CharField(max_length=200)
     hotel = models.ForeignKey(to=Hotel,on_delete=models.CASCADE,related_name='rooms')
+    def __str__(self):
+        return f"{self.description} - {self.room_number}"
 class Reservation(models.Model) :
-    id_reservation= models.IntegerField(primary_key=True)
+    id_reservation= models.AutoField(primary_key=True)
     check_in = models.DateField(blank=False,null=False)
     check_out  =  models.DateField(blank=False,null=False)
     reservation_price = models.FloatField()
     user = models.OneToOneField(User,on_delete=models.CASCADE  ,related_name='reservations')
     rooms = models.ManyToManyField(Room,related_name='reservations')
+    
+    def __str__(self):
+        room_numbers = ', '.join([room.room_number for room in self.rooms.all()])
+        return f"Reservation for rooms {room_numbers}"
     
     
 

@@ -6,6 +6,10 @@ from .forms import SignupForm
 from django.contrib.auth.models import User
 from .models import Hotel
 from django.contrib.auth.decorators import login_required
+import json
+from datetime import datetime
+from .models import Reservation
+
 
 
 class HomeView(TemplateView):
@@ -26,16 +30,16 @@ def signup_view(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
-            # Enregistre l'utilisateur
+            
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             user.save()
 
-            # Connecte l'utilisateur automatiquement
+            
             login(request, user)
 
-            # Redirige vers la page d'accueil après l'enregistrement
-            return redirect('Blog')  # Assurez-vous que 'home' est bien défini dans urls.py
+            
+            return redirect('Blog')  
     else:
         form = SignupForm()
 
@@ -53,17 +57,68 @@ def reservation_view(request, hotel_id) :
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
-            # Enregistre l'utilisateur
+           
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             user.save()
 
-            # Connecte l'utilisateur automatiquement
             login(request, user)
 
-            # Redirige vers la page d'accueil après l'enregistrement
-            return redirect('Blog')  # Assurez-vous que 'home' est bien défini dans urls.py
+           
+            return redirect('Blog')  
     else:
         hotel = get_object_or_404(Hotel, id_hotel=hotel_id)
         return render(request=request, template_name="Fahdapp/reservation.html", context={'hotel' : hotel})
     
+
+def reservation_view(request, hotel_id):
+    hotel = get_object_or_404(Hotel, id_hotel=hotel_id)
+    rooms = hotel.rooms.all()
+    rooms_json = json.dumps(list(rooms.values('room_number', 'description', 'price_per_night', 'reservations')))
+
+    if request.method == 'POST':
+        room_number = request.POST.get('room_number')
+        checkin_date = request.POST.get('checkin_date')
+        checkout_date = request.POST.get('checkout_date')
+
+        selected_room = hotel.rooms.filter(room_number=room_number).first()
+
+        if selected_room:
+            reservations = selected_room.reservations.all()
+            is_available = True
+            for reservation in reservations:
+                if not (checkout_date <= reservation.check_in or checkin_date >= reservation.check_out):
+                    is_available = False
+                    break
+
+            if is_available:
+                checkin_date_obj = datetime.strptime(checkin_date, '%Y-%m-%d').date()
+                checkout_date_obj = datetime.strptime(checkout_date, '%Y-%m-%d').date()
+                days = (checkout_date_obj - checkin_date_obj).days
+                total_price = selected_room.price_per_night * days
+                reservation = Reservation.objects.create(
+                    check_in=checkin_date_obj,
+                    check_out=checkout_date_obj,
+                    reservation_price=total_price,
+                    user=request.user  
+                )
+
+                
+                reservation.rooms.add(selected_room)
+                reservation.save()
+
+                return redirect('Confirmation')
+            else:
+                return render(request, 'Fahdapp/reservation.html', {
+                    'hotel': hotel,
+                    'rooms_json': rooms_json,
+                    'error': 'The selected room is not available for the chosen dates.'
+                })
+
+    return render(request, 'Fahdapp/reservation.html', {'hotel': hotel, 'rooms_json': rooms_json})
+
+def confirmation_view(request):
+    # Get the last reservation made
+    last_reservation = Reservation.objects.last()
+    
+    return render(request, 'Fahdapp/confirmation.html', {'reservation': last_reservation})

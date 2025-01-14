@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'Fahdapp/style5.css' %}">
     <script>
+        
+   
         function updateRoomNumbers() {
             var roomType = document.querySelector('input[name="room_type"]:checked').value;
             var checkin_date = document.getElementById("checkin_date").value;
@@ -17,7 +19,9 @@
             roomSelect.innerHTML = ""; // Reset options
             roomNumbersDiv.innerHTML = ""; // Clear previous room numbers
             
-            var rooms = {{ hotel.rooms | safe }}; // Contexte avec les chambres
+            var rooms = JSON.parse('{{ rooms_json|escapejs }}');
+                               // Contexte avec les chambres
+             
             var filteredRooms = rooms.filter(room => room.description === roomType);
             var availableRooms = [];
             
@@ -56,6 +60,7 @@
                 roomNumbersDiv.innerHTML = "<strong>No rooms available for the selected type and dates.</strong>";
             }
         }
+        
     </script>
 </head>
 <body>
@@ -99,3 +104,4 @@
     </div>
 </body>
 </html>
+
